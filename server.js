@@ -12,8 +12,11 @@ app.use(helmet());
 app.use(cors());
 app.use(validateBearer);
 
+//Grab API key from environment
 const API_SECRET = process.env.API_SECRET;
 
+
+//Validates API key
 function validateBearer(req, res, next) {
   const authVal = req.get('Authorization') || '';
   if(!authVal.startsWith('Bearer ')) {
@@ -27,22 +30,30 @@ function validateBearer(req, res, next) {
   next();
 }
 
+
+//Sends back data when browser looks at /movie endpoint
 app.get('/movie', (req, res) => {
   let filtered = [...store];
   let genre = req.query.genre;
   let country = req.query.country;
   let avgScore = parseInt(req.query.avg_vote);
 
+  //checks if genre filter parameter was sent by user and filters original list
   if(genre) {
     filtered = filtered.filter(movie => movie.genre.toLowerCase().includes(genre.toLowerCase()));
   }
+
+  //checks if country filter parameter was sent by user and filters list
   if(country) {
     filtered = filtered.filter(movie => movie.country.toLowerCase().includes(country.toLowerCase()));
   }
+
+  //checks if avg_vote parameter was sent by user and filters list
   if(avgScore) {
     filtered = filtered.filter(movie => movie.avg_vote >= avgScore );
   }
 
+  //returns list based on necessary filters, if no filters, returns entire list
   res.json(filtered);
 });
 
